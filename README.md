@@ -184,7 +184,3 @@ pytest --html=report.html --self-contained-html
 
 To simulate a real enterprise backend environment and apply professional API automation testing practices - similar to what QA Automation Engineers and SDETs perform in production systems.
 
-
-
-
-
