@@ -1,7 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-# 1️⃣ import database AFTER FastAPI? or keep as is
 from .database import Base, engine, SessionLocal
 from .models import User
 from .schemas import UserCreate, UserResponse
@@ -9,10 +8,8 @@ from .auth import hash_password, verify_password, create_token
 
 app = FastAPI()
 
-# 2️⃣ create tables AFTER all models are imported
 Base.metadata.create_all(bind=engine)
 
-# 3️⃣ DB dependency
 def get_db():
     db = SessionLocal()
     try:
