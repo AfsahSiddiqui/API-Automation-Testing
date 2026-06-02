@@ -6,10 +6,11 @@ This project demonstrates a professional API automation testing framework built 
 
 Instead of testing a public dummy API, a dedicated backend system was created to simulate an enterprise-style environment where:
 
-- Authentication logic exists
-- User management is implemented
-- Database persistence is involved
-- Real-world API behaviors can be validated
+- Authentication and Authorization are implemented (JWT tokens)
+- Users can only access their own resources
+- User management APIs are protected
+- Database persistence is used
+- Real-world API security and behavior can be validated
 
 This approach provides full control over backend workflows, allowing deeper API testing similar to what is done in real production systems.
 
@@ -60,6 +61,7 @@ tests/
 ├── test_negative_scenarios.py
 ├── test_schema_validation.py
 ├── test_user_creation_db_validation.py
+├── test_authentication_authorization.py
 └── conftest.py
 
 ---
@@ -72,11 +74,13 @@ This project replicates that reality by:
 
 - Creating controlled API endpoints
 - Implementing authentication flows
+- Enforcing authorization rules
 - Storing real data in a database
 - Allowing full backend behavior validation
 
 This enables:
 
+-Secure API flows
 - Reliable test automation
 - Database-level verification
 - Negative testing
@@ -87,14 +91,16 @@ This enables:
 
 ## Features Implemented
 
-- User creation API
-- Secure password hashing
-- Login authentication with token generation
+- User registration API
+- Login API with JWT token generation
+- Secure password hashing (bcrypt)
+- Protected endpoints using authentication middleware
+- Authorization (user can only access their own data)
 - Database persistence validation
 - Duplicate user handling
 - Error handling & negative scenarios
-- API response schema validation
-- End-to-end backend verification
+- JSON schema validation
+- End-to-end API + DB verification
 
 ---
 
@@ -148,7 +154,16 @@ pytest --html=report.html --self-contained-html
 
 - Create user
 - Login user
-- Fetch user by ID
+- Fetch user by ID )protected endpoint)
+
+### Authentication Tests
+- Valid login returns JWT token
+- Invalid login returns 401 Unauthorized
+
+### Authorization Tests
+- User can access only their own data
+- Accessing other users returns 403 Forbidden
+- Invalid user IDs return 404 Not Found
 
 ### Negative Scenarios
 
@@ -171,6 +186,7 @@ pytest --html=report.html --self-contained-html
 ## Key Learning Outcomes
 
 - Designing testable backend systems
+- Implementing authorization (access control rules)
 - Building enterprise-style API workflows
 - Automating REST API testing
 - Validating backend + database together
@@ -182,5 +198,5 @@ pytest --html=report.html --self-contained-html
 
 ## Project Goal
 
-To simulate a real enterprise backend environment and apply professional API automation testing practices - similar to what QA Automation Engineers and SDETs perform in production systems.
+To simulate a real enterprise backend environment and apply professional API automation testing practices - similar to what QA Automation Engineers and SDETs perform in production systems, including authentication, authorization, and database validation workflows.
 
