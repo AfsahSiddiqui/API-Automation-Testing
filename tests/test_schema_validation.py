@@ -1,9 +1,6 @@
 import requests
 from jsonschema import validate
-import logging
-
-BASE_URL = "http://127.0.0.1:8000"
-logger = logging.getLogger(__name__)
+from tests.conftest import BASE_URL, logger
 
 user_schema = {
     "type": "object",
@@ -14,12 +11,19 @@ user_schema = {
     "required": ["id", "email"]
 }
 
-def test_user_response_schema():
-    logger.info("Fetching user with ID: 1")
-    response = requests.get(f"{BASE_URL}/users/1")
+def test_user_response_schema(auth_token):
+    headers = {
+        "Authorization": f"Bearer {auth_token['token']}"
+    }
+    logger.info(f"Fetching user with ID: '{auth_token['user_id']}' to validate response schema")
+    response = requests.get(
+        f"{BASE_URL}/users/{auth_token['user_id']}",
+        headers=headers
+    )
 
     logger.info(f"Response status: {response.status_code}")
     logger.info(f"Response body: {response.json()}")
     
     assert response.status_code == 200
     validate(instance=response.json(), schema=user_schema)
+

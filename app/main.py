@@ -1,14 +1,16 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from .database import Base, engine, SessionLocal
 from .models import User
 from .schemas import UserCreate, UserResponse
-from .auth import hash_password, verify_password, create_token
+from .auth import hash_password, verify_password, create_token, decode_token
 
 app = FastAPI()
 
 Base.metadata.create_all(bind=engine)
+security = HTTPBearer()
 
 def get_db():
     db = SessionLocal()
@@ -42,9 +44,36 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     db.refresh(new_user)
     return new_user
 
+def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: Session = Depends(get_db)
+):
+    token = credentials.credentials
+
+    email = decode_token(token)
+
+    user = db.query(User).filter(User.email == email).first()
+
+    if not user:
+        raise HTTPException(status_code=401, detail="User not found")
+
+    return user
+
+
 @app.get("/users/{user_id}", response_model=UserResponse)
-def get_user(user_id: int, db: Session = Depends(get_db)):
+def get_user(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
-        raise HTTPException(status_code=404)
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    if current_user.id != user_id:
+        raise HTTPException(
+            status_code=403,
+            detail="You can only access your own account"
+    )
+
     return user

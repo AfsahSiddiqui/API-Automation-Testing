@@ -3,6 +3,8 @@ import requests
 from faker import Faker
 import logging
 
+BASE_URL = "http://127.0.0.1:8000"
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(levelname)s | %(message)s"
@@ -11,14 +13,12 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-BASE_URL = "http://127.0.0.1:8000"
-
 @pytest.fixture
 def random_user():
     fake = Faker()
     return {
         "email": fake.email(),
-        "password": "SecurePassword123"
+        "password": fake.password(length=12, special_chars=True, digits=True)
     }
 
 @pytest.fixture(scope="session")
@@ -27,7 +27,7 @@ def auth_token():
 
     auth_user = {
         "email": fake.email(),
-        "password": "SecurePassword123"
+        "password": fake.password(length=12, special_chars=True, digits=True)
     }
 
     # Create user
@@ -43,5 +43,8 @@ def auth_token():
         json=auth_user
     )
     assert login_response.status_code == 200
-
-    return login_response.json()["access_token"]
+    
+    return {
+        "token": login_response.json()["access_token"],
+        "user_id": create_response.json()["id"]
+    }

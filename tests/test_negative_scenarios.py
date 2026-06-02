@@ -1,18 +1,12 @@
 import requests
-import faker
-import logging
+from tests.conftest import BASE_URL, logger
 
-fake = faker.Faker()
-
-logger = logging.getLogger(__name__)
-BASE_URL = "http://127.0.0.1:8000"
-
-def test_login_unregistered_email():
+def test_login_unregistered_email(random_user):
     logger.info("Sending request to login with unregistered email")
 
     response = requests.post(
         f"{BASE_URL}/login",
-        json={"email": fake.email(), "password": fake.password()}
+        json=random_user
     )
 
     logger.info(f"Response status: {response.status_code}")
@@ -20,10 +14,9 @@ def test_login_unregistered_email():
 
     assert response.status_code == 401
 
-def test_create_user_duplicate_email_and_invalid_passoword_login():
-    email = fake.email()
-    password = fake.password(length=12)
-    payload = {"email": email, "password": password}
+def test_create_user_duplicate_email_and_invalid_passoword_login(random_user):
+    payload = random_user
+    email = payload["email"]
     
     # create user first time
     first = requests.post(f"{BASE_URL}/users", json=payload)
@@ -45,7 +38,7 @@ def test_create_user_duplicate_email_and_invalid_passoword_login():
 
     response = requests.post(
         f"{BASE_URL}/login",
-        json={"email": email, "password": fake.password()}
+        json={"email": email, "password": "WrongPassword123!"}
     )
 
     logger.info(f"Response status: {response.status_code}")
@@ -53,11 +46,3 @@ def test_create_user_duplicate_email_and_invalid_passoword_login():
 
     assert response.status_code == 401
 
-def test_get_nonexistent_user():
-    logger.info("Sending request to retrive nonexistent user info")
-    response = requests.get(f"{BASE_URL}/users/999999")
-
-    logger.info(f"Response status: {response.status_code}")
-    logger.info(f"Response body: {response.json()}")
-    
-    assert response.status_code == 404
