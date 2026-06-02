@@ -80,7 +80,7 @@ This project replicates that reality by:
 
 This enables:
 
--Secure API flows
+- Secure API flows
 - Reliable test automation
 - Database-level verification
 - Negative testing
