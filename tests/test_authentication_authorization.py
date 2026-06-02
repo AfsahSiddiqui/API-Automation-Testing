@@ -8,7 +8,7 @@ from tests.conftest import BASE_URL, logger
     [
         ("own", 200),
         (2, 403),
-        (5, 403),
+        (3, 403),
         (99999, 404),
     ]
 )
